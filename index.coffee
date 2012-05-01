@@ -131,14 +131,12 @@ class Pocket
     opts.format     = "json"          # set json
     opts.tags       = if opts.tags is no then 0 else 1
     opts.myAppOnly  = if opts.myAppOnly is yes then 1 else 0
-    console.log "opts = #{JSON.stringify opts, null, 2}"
     request "#{@_domain}/get?#{@_joinParams opts}",  (err, res, body) => @_getBody err, res, body, fn
 
   ###
   Get user urls
 
   @param {Object} opts Options
-                  opts.state
                   opts.myAppOnly - set to yes for getting urls, saved only from current app
                   opts.state     - get urls with state: "read", "unread", undefined (default)
                   opts.since     - select url updted/added after this time (unix format)
@@ -178,8 +176,7 @@ class Pocket
     for k, v of obj
       if k in ["new", "read", "update_title", "update_tags"]
         body.push "#{k}=#{JSON.stringify @_normalizeObject obj[k]}"
-#    console.log "body = #{body.join '&'}"
-    request.post {url: url, headers: headers, body: body.join "&"}, (err, res)  -> => @_checkErrors err, res, fn
+    request.post {url: url, headers: headers, body: body.join "&"}, (err, res)  => @_checkErrors err, res, fn
 
 
   ###
@@ -234,4 +231,4 @@ class Pocket
 exports.Pocket = Pocket
 
 
-exports.version = "0.2.1"
+exports.version = "0.2.4"
