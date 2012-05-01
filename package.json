@@ -1,6 +1,6 @@
 {
     "name"              : "node-pocket"
-  , "version"           : "0.2.1"
+  , "version"           : "0.2.4"
   , "keywords"          : ["pocket", "getpocket"]
   , "author"            : "Temnov Kirill, @selead"
   , "description"       : "API bindings for getpocket.com"
