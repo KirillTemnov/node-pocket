@@ -123,6 +123,7 @@
   - `page` {Number} - page number for getting results, starting from 1, default 1
   - `tags` {Boolean} - include tags in result , default `true`
 
+    ```coffee-script
     p.get {count:10}, (err, pages) ->
       unless err
         console.log "Timestamp: #{pages.since}"
@@ -132,6 +133,7 @@
           console.log "tags: #{if v.tags? then v.tags else '{empty}'}\n"
       else
         console.log "error fetching pages"
+    ```
 
 <a name='new'> 
 ### new(data, fn)
@@ -144,6 +146,7 @@
   - `data[].title` {String} - page title
   - `data[].ref_id` {String}  - ref_id, only for twitter clients, see http://getpocket.com/api/docs/#add_ref_id
 
+    ```coffee-script
     data = [
          {url: "http://getpocket.com/", title: "Pocket main"},
          {url: "http://duckduckgo.com/", title: "Go go duck!"}
@@ -153,7 +156,7 @@
         console.log "pages added"
       else
         console.log "pages wasn't added"
-
+    ```    
 
 <a name='read'> 
 ### read(data, fn)
@@ -164,12 +167,13 @@
   
   - `data[].url` {String} - page url
 
+    ```coffee-script
     p.read [{url: "http://getpocket.com/"}], (err) ->
       unless err
         console.log "mark getpocket as read""
       else
         console.log "page wasn't marked as read"
-
+    ```
 
 <a name='updateTitle'> 
 ### updateTitle(data, fn)
@@ -181,6 +185,7 @@
   - `data[].url` {String} - page url
   - `data[].title` {String} - page title
 
+    ```coffee-script
     data = [
          {url: "http://getpocket.com/", title: "My Pocket"},
          {url: "http://duckduckgo.com/", title: "Search"}
@@ -190,7 +195,7 @@
         console.log "pages updated"
       else
         console.log "pages wasn't updated"
-  
+    ```  
 
 
 <a name='updateTags'> 
@@ -203,6 +208,7 @@
   - `data[].url` {String} - page url
   - `data[].tags` {String}  - comma separated tags
 
+    ```coffee-script
     data = [
          {url: "http://getpocket.com/", tags: "pocket,bookmarks"},
          {url: "http://duckduckgo.com/", tags: "search-engine"}
@@ -212,6 +218,7 @@
         console.log "pages tags updated"
       else
         console.log "pages tags wasn't updated"
+    ```
 
 ## License
 
