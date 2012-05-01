@@ -1,12 +1,14 @@
 # node-pocket
-  `node-pocet` is an API wrapper for [https://getpocket.com] service.
+  `node-pocet` is an API wrapper for https://getpocket.com service.
 
   This project designed by current api docs: http://getpocket.com/api/docs
 
 
 ## Installation
-
-    npm install node-pocket
+   
+```bash
+npm install node-pocket
+```
 
 ## Using
    
@@ -22,12 +24,14 @@
 
    Each of callback function accept 2 parameters:
 
-        1) Error code, null if no errors
-        2) Result - a json object
+   1) Error code, null if no errors
+   2) Result - a json object
 
    Before call any method, we create instance:
 
-    p = new (require "node-pocket").Pocket "<USERNAME>", "<PASSWORD>", "<APIKEY>"
+```coffee-script
+p = new (require "node-pocket").Pocket "<USERNAME>", "<PASSWORD>", "<APIKEY>"
+```
 
    List of methods
 
@@ -48,23 +52,27 @@
 
   Authenticate user with password
 
-    p.auth (err, ok) ->
-      if not err and ok
-         console.log "auth successfull"
-      else
-         console.log "auth fail"
+```coffee-script
+p.auth (err, ok) ->
+  if not err and ok
+     console.log "auth successfull"
+  else
+     console.log "auth fail"
+```
 
 <a name='signup'>
 ### signup(new_username, password, fn)
 
   Signup new user. This call will be successfull only for unique usernames.
 
-    p = new (require "node-pocket").Pocket null, null, "<APIKEY>"
-    p.signup "uname", "password, "<APIKEY>", (err, ok) ->
-      if not err and ok
-         console.log "new user created"
-      else
-         console.log "error creating new user"
+```coffee-script
+p = new (require "node-pocket").Pocket null, null, "<APIKEY>"
+p.signup "uname", "password, "<APIKEY>", (err, ok) ->
+  if not err and ok
+     console.log "new user created"
+  else
+     console.log "error creating new user"
+```
 
 
   *this method was designed according api docs, but not tested yet!*
@@ -75,12 +83,14 @@
   Add new url to pocket, accept single page data, for batch adding use [send](#send) method.
 
   Parameter ref_id must be set for twitter client, see more: http://getpocket.com/api/docs/#add_ref_id
-
-    p.add "http://getpocket.com/", "Pocket main page", (err, ok) ->
-      if not err and ok
-         console.log "page added
-      else
-         console.log "page adding error"
+  
+```coffee-script
+p.add "http://getpocket.com/", "Pocket main page", (err, ok) ->
+  if not err and ok
+     console.log "page added
+  else
+     console.log "page adding error"
+```
 
   Note, that title that accessible by api may not match with title, that visible on
   page http://getpocket.com/a/queue/
@@ -90,24 +100,26 @@
 
   Get statistics by user.
 
-    p.stats, (err, statObj) ->
-      unless err
-         console.log "user stats: #{JSON.stringify statObj, null, 2}
-      else
-         console.log "error fetching stat"
-
+```coffee-script
+p.stats, (err, statObj) ->
+  unless err
+     console.log "user stats: #{JSON.stringify statObj, null, 2}
+  else
+     console.log "error fetching stat"
+```
 
 <a name='apiInfo'>
 ### apiInfo(fn) 
 
   Get limits for application
 
-    p.apiInfo, (err, info) ->
-      unless err
-         console.log "user stats: #{JSON.stringify info, null, 2}
-      else
-         console.log "error fetching stat"
-
+```coffee-script
+p.apiInfo, (err, info) ->
+  unless err
+     console.log "user stats: #{JSON.stringify info, null, 2}
+  else
+     console.log "error fetching stat"
+```
 
   `info` is a dictionary with "x-limit-..." keys.
 
@@ -123,17 +135,17 @@
   - `page` {Number} - page number for getting results, starting from 1, default 1
   - `tags` {Boolean} - include tags in result , default `true`
 
-    ```coffee-script
-    p.get {count:10}, (err, pages) ->
-      unless err
-        console.log "Timestamp: #{pages.since}"
-        for k,v of pages.list
-          console.log "#{k}\t[#{v.url}](#{v.title})"
-          console.log "read: #{if v.state is '1' then 'yes' else 'no'}"
-          console.log "tags: #{if v.tags? then v.tags else '{empty}'}\n"
-      else
-        console.log "error fetching pages"
-    ```
+```coffee-script
+p.get {count:10}, (err, pages) ->
+  unless err
+    console.log "Timestamp: #{pages.since}"
+    for k,v of pages.list
+      console.log "#{k}\t[#{v.url}](#{v.title})"
+      console.log "read: #{if v.state is '1' then 'yes' else 'no'}"
+      console.log "tags: #{if v.tags? then v.tags else '{empty}'}\n"
+  else
+    console.log "error fetching pages"
+```
 
 <a name='new'> 
 ### new(data, fn)
@@ -146,17 +158,17 @@
   - `data[].title` {String} - page title
   - `data[].ref_id` {String}  - ref_id, only for twitter clients, see http://getpocket.com/api/docs/#add_ref_id
 
-    ```coffee-script
-    data = [
-         {url: "http://getpocket.com/", title: "Pocket main"},
-         {url: "http://duckduckgo.com/", title: "Go go duck!"}
-         ]
-    p.new data, (err) ->
-      unless err
-        console.log "pages added"
-      else
-        console.log "pages wasn't added"
-    ```    
+```coffee-script
+data = [
+     {url: "http://getpocket.com/", title: "Pocket main"},
+     {url: "http://duckduckgo.com/", title: "Go go duck!"}
+     ]
+p.new data, (err) ->
+  unless err
+    console.log "pages added"
+  else
+    console.log "pages wasn't added"
+```    
 
 <a name='read'> 
 ### read(data, fn)
@@ -167,13 +179,13 @@
   
   - `data[].url` {String} - page url
 
-    ```coffee-script
-    p.read [{url: "http://getpocket.com/"}], (err) ->
-      unless err
-        console.log "mark getpocket as read""
-      else
-        console.log "page wasn't marked as read"
-    ```
+```coffee-script
+p.read [{url: "http://getpocket.com/"}], (err) ->
+  unless err
+    console.log "mark getpocket as read""
+  else
+    console.log "page wasn't marked as read"
+```
 
 <a name='updateTitle'> 
 ### updateTitle(data, fn)
@@ -185,17 +197,17 @@
   - `data[].url` {String} - page url
   - `data[].title` {String} - page title
 
-    ```coffee-script
-    data = [
-         {url: "http://getpocket.com/", title: "My Pocket"},
-         {url: "http://duckduckgo.com/", title: "Search"}
-         ]
-    p.updateTitle data, (err) ->
-      unless err
-        console.log "pages updated"
-      else
-        console.log "pages wasn't updated"
-    ```  
+```coffee-script
+data = [
+     {url: "http://getpocket.com/", title: "My Pocket"},
+     {url: "http://duckduckgo.com/", title: "Search"}
+     ]
+p.updateTitle data, (err) ->
+  unless err
+    console.log "pages updated"
+  else
+    console.log "pages wasn't updated"
+```  
 
 
 <a name='updateTags'> 
@@ -208,17 +220,17 @@
   - `data[].url` {String} - page url
   - `data[].tags` {String}  - comma separated tags
 
-    ```coffee-script
-    data = [
-         {url: "http://getpocket.com/", tags: "pocket,bookmarks"},
-         {url: "http://duckduckgo.com/", tags: "search-engine"}
-         ]
-    p.updateTags data, (err) ->
-      unless err
-        console.log "pages tags updated"
-      else
-        console.log "pages tags wasn't updated"
-    ```
+```coffee-script
+data = [
+     {url: "http://getpocket.com/", tags: "pocket,bookmarks"},
+     {url: "http://duckduckgo.com/", tags: "search-engine"}
+     ]
+p.updateTags data, (err) ->
+  unless err
+    console.log "pages tags updated"
+  else
+    console.log "pages tags wasn't updated"
+```
 
 ## License
 
