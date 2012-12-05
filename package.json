@@ -1,14 +1,15 @@
 {
     "name"              : "node-pocket"
-  , "version"           : "0.2.4"
+  , "version"           : "0.9.3"
   , "keywords"          : ["pocket", "getpocket"]
   , "author"            : "Temnov Kirill, @selead"
   , "description"       : "API bindings for getpocket.com"
   , "main"              : "index"
-  , "engines"           : { "node": ">= 0.4  <= 0.7" }
+  , "engines"           : { "node": ">= 0.6" }
   , "license"           : "MIT"
   , "dependencies"      : {
-        "coffee-script" : ">= 1.1.2 "
+        "coffee-script" : ">= 1.3.x"
       , "request"       : ">= 2.2.x"
+      , "underscore"    : ">= 1.4.x"
   }
 }
