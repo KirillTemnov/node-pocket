@@ -1,7 +1,7 @@
 # node-pocket
-  `node-pocet` is an API wrapper for https://getpocket.com service.
+  `node-pocket` is an API wrapper for https://getpocket.com service.
 
-  This project designed by current api docs: http://getpocket.com/api/docs
+  This project designed by current api docs: http://getpocket.com/developer/
 
 
 ## Installation
@@ -10,227 +10,104 @@
 npm install node-pocket
 ```
 
-## Using
+## Using node-pocket
    
    For using this wrapper you need to create `Pocket` class instanse from main module, passing
-   to it valid username, password and *your api key*.
+   to it valid `consumer_key` and `access_token` fetched from user.
    
 
-## Documentation
+### Fetching access_token
 
-   For detailed explanation of error codes see http://getpocket.com/api/docs/#response.
+  First of all we need to get request token, by calling `getRequestToken`. The `url` key must contain valid callback url for our application. You may set parameter redirect to "ios" for approving from native iOS app, but first read this: http://getpocket.com/developer/docs/authentication
 
-   Any request, that return code 200 considered successfull.
+```coffee-script  
+    Pocket = require "node-pocket"
+    consumer_key = "12345-102a2012b..23d" # set yours
+    p = new Pocket consumer_key
+    p.getRequestToken url: "http://127.0.0.1:8080/get-access-token", (err, result) ->
+      unless err
+        # save result.code in session, e.g.
+        req.session.code = result.code
+        # redirect to result.redirectUrl
+      else
+        # proceed error
+```
 
+After approving of deniying permissions, user redirects to `url`, specified as `getRequestToken` parameter. Then you must proceed this url and try to get access token:
+
+```coffee-script
+    ...
+    p = new Pocket consumer_key
+    code = req.session.code
+    p.getAccessToken code: code, (err, data) ->
+      unless err
+        # save data.access_token
+      else
+        # proceed error
+```
+
+After saving access_token, you may use other api methods
+
+### Using API
    Each of callback function accept 2 parameters:
 
    1) Error code, null if no errors
    2) Result - a json object
 
-   Before call any method, we create instance:
+#### `get(opts, fn)` [Official docs](http://getpocket.com/developer/docs/v3/retrieve)
 
-```coffee-script
-p = new (require "node-pocket").Pocket "<USERNAME>", "<PASSWORD>", "<APIKEY>"
-```
+  Search and filter items. 
+  
+  - `opts`              - Options for searching and filter results
+  - `fn(err, result)`   - callback function
 
-   List of methods
-
-   - [auth](#auth)
-   - [signup](#signup)
-   - [add](#add)
-   - [stats](#stats)
-   - [apiInfo](#apiInfo)
-   - [get](#get)
-   - [new](#new)
-   - [read](#read)
-   - [updateTitle](#updateTitle)
-   - [updateTags](#updateTags)
-
-
-<a name='auth'>
-### auth(fn)   
-
-  Authenticate user with password
-
-```coffee-script
-p.auth (err, ok) ->
-  if not err and ok
-     console.log "auth successfull"
-  else
-     console.log "auth fail"
-```
-
-<a name='signup'>
-### signup(new_username, password, fn)
-
-  Signup new user. This call will be successfull only for unique usernames.
-
-```coffee-script
-p = new (require "node-pocket").Pocket null, null, "<APIKEY>"
-p.signup "uname", "password, "<APIKEY>", (err, ok) ->
-  if not err and ok
-     console.log "new user created"
-  else
-     console.log "error creating new user"
-```
-
-
-  *this method was designed according api docs, but not tested yet!*
-
-<a name='add'>
-### add(url, title, [ref_id], fn)
-    
-  Add new url to pocket, accept single page data, for batch adding use [send](#send) method.
-
-  Parameter ref_id must be set for twitter client, see more: http://getpocket.com/api/docs/#add_ref_id
+  
+  Example:
   
 ```coffee-script
-p.add "http://getpocket.com/", "Pocket main page", (err, ok) ->
-  if not err and ok
-     console.log "page added
-  else
-     console.log "page adding error"
+    ...
+    p = new Pocket consumer_key, access_token
+    p.get {sort: "newest", count: 10}, (err, data) ->
+      # proceed error/data    
 ```
 
-  Note, that title that accessible by api may not match with title, that visible on
-  page http://getpocket.com/a/queue/
+#### `add(opts, fn)` [Official docs](http://getpocket.com/developer/docs/v3/add)
 
-<a name='stats'>
-### stats(fn)
+  Add a single item to pocket.  
 
-  Get statistics by user.
+  - `opts`              - Options for searching and filter results
+  - `fn(err, result)`   - callback function
+
+  Example
 
 ```coffee-script
-p.stats, (err, statObj) ->
-  unless err
-     console.log "user stats: #{JSON.stringify statObj, null, 2}
-  else
-     console.log "error fetching stat"
+    ...
+    p = new Pocket consumer_key, access_token
+    p.add url: "http://getpocket.com/developer/docs/v3/add", tags: "pocket, api, add", (err, data) ->
+      # proceed error/data
 ```
 
-<a name='apiInfo'>
-### apiInfo(fn) 
+  For multiple additions use `modify` method.
 
-  Get limits for application
+#### `modify(opts, fn)`  [Official docs](http://getpocket.com/developer/docs/v3/modify)
+
+  Create new item(s), update item tags, archive/delete, favorite or unfavorite item(s).
+
+  - `opts`              - Options for searching and filter results
+  - `fn(err, result)`   - callback function
+
 
 ```coffee-script
-p.apiInfo, (err, info) ->
-  unless err
-     console.log "user stats: #{JSON.stringify info, null, 2}
-  else
-     console.log "error fetching stat"
+    ...
+    ...
+    p = new Pocket consumer_key, access_token
+    p.modify actions: [action: "tags_replace", tags: ["pocket", "awesome", "api"], item_id: "00000000", (err, data) ->
+      # proceed error/data
+      
 ```
 
-  `info` is a dictionary with "x-limit-..." keys.
+Detailed options description in [source code](https://github.com/selead/node-pocket/blob/master/index.coffee)
 
-<a name='get'>
-### get(options, fn) 
-
-  `options` dictionary may contain fields:
-
-  - `state` {String} - state for fetched pages, may be "read", "unread" and empty for both read and unread
-  - `myAppOnly` {Boolean} - get results only if they were saved from application with same apikey, default `false`.
-  - `since` {Number} - get results only if they were saved or created after `since` timestamp (unix formatted)
-  - `count` {Number} - max number of results to fetch. By dedault all matched results will be returned, but if you ignore `count` parameter, *your application may be banned any time*.
-  - `page` {Number} - page number for getting results, starting from 1, default 1
-  - `tags` {Boolean} - include tags in result , default `true`
-
-```coffee-script
-p.get {count:10}, (err, pages) ->
-  unless err
-    console.log "Timestamp: #{pages.since}"
-    for k,v of pages.list
-      console.log "#{k}\t[#{v.url}](#{v.title})"
-      console.log "read: #{if v.state is '1' then 'yes' else 'no'}"
-      console.log "tags: #{if v.tags? then v.tags else '{empty}'}\n"
-  else
-    console.log "error fetching pages"
-```
-
-<a name='new'> 
-### new(data, fn)
-
-  Batch creation of new pages
-  
-  `data` is an array of objects:
-  
-  - `data[].url` {String} - page url
-  - `data[].title` {String} - page title
-  - `data[].ref_id` {String}  - ref_id, only for twitter clients, see http://getpocket.com/api/docs/#add_ref_id
-
-```coffee-script
-data = [
-     {url: "http://getpocket.com/", title: "Pocket main"},
-     {url: "http://duckduckgo.com/", title: "Go go duck!"}
-     ]
-p.new data, (err) ->
-  unless err
-    console.log "pages added"
-  else
-    console.log "pages wasn't added"
-```    
-
-<a name='read'> 
-### read(data, fn)
-
-  Batch mark pages as read
-
-  `data` is an array of objects:
-  
-  - `data[].url` {String} - page url
-
-```coffee-script
-p.read [{url: "http://getpocket.com/"}], (err) ->
-  unless err
-    console.log "mark getpocket as read""
-  else
-    console.log "page wasn't marked as read"
-```
-
-<a name='updateTitle'> 
-### updateTitle(data, fn)
-
-  Batch updating titles for pages
-
-  `data` is an array of objects:
-  
-  - `data[].url` {String} - page url
-  - `data[].title` {String} - page title
-
-```coffee-script
-data = [
-     {url: "http://getpocket.com/", title: "My Pocket"},
-     {url: "http://duckduckgo.com/", title: "Search"}
-     ]
-p.updateTitle data, (err) ->
-  unless err
-    console.log "pages updated"
-  else
-    console.log "pages wasn't updated"
-```  
-
-
-<a name='updateTags'> 
-### updateTags(data, fn)
-
-  Batch update tags for pages
-
-  `data` is an array of objects:
-  
-  - `data[].url` {String} - page url
-  - `data[].tags` {String}  - comma separated tags
-
-```coffee-script
-data = [
-     {url: "http://getpocket.com/", tags: "pocket,bookmarks"},
-     {url: "http://duckduckgo.com/", tags: "search-engine"}
-     ]
-p.updateTags data, (err) ->
-  unless err
-    console.log "pages tags updated"
-  else
-    console.log "pages tags wasn't updated"
-```
 
 ## License
 
