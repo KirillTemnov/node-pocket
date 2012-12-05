@@ -228,7 +228,81 @@ class Pocket
 
 
 
-exports.Pocket = Pocket
+#exports.Pocket = Pocket
+
+class Pocket2
+  constructor: (@consumer_key, @access_token) ->
+
+  #
+  # Join params from dict to query string
+  #
+  # @param {Object} params Dict of params
+  #
+  _joinParams: (params={}) ->
+    p                  = []
+    for k, v of params
+      p.push "#{k}=#{escape v}" if v
+    p.join "&"
+
+  #
+  # Get responce body, if no errors, otherwise return error
+  #
+  _getBody: (err, res, body, fn) ->
+      if err
+        fn err
+      else if res.statusCode is 200
+        fn null, JSON.parse body
+      else
+        fn errCode: res.statusCode
+
+  #
+  # Public: Get request token
+  #
+  # url - url to redirect after approve
+  # fn(err, rd) - callback function
+  # 
+  getRequestToken: (opts={}, fn=->) ->
+    uri = encodeURIComponent opts.url
+    endpt = "consumer_key=#{@consumer_key}&redirect_uri=#{uri}"
+    headers = {"content-type" : "application/x-www-form-urlencoded", "X-accept": "application/json"}
+    request.post {url: "https://getpocket.com/v3/oauth/request", headers: headers, body: endpt }, (err, res, body) ->
+      if err
+        fn err, body
+      else
+        b = JSON.parse body
+        fn null,
+          code        : b.code
+          redirectUrl : "https://getpocket.com/auth/authorize?request_token=#{b.code}&redirect_uri=#{uri}"
 
 
-exports.version = "0.2.4"
+  #
+  # Public: Get access token, needs code
+  #
+  # code - code for get acccess token
+  # fn(err, result) - callback function
+  #
+  getAccessToken: (opts={}, fn=->) ->
+    bodyStr = "consumer_key=#{@consumer_key}&code=#{opts.code}"
+    headers = {"content-type" : "application/x-www-form-urlencoded", "X-accept": "application/json"}
+    request.post {url: "https://getpocket.com/v3/oauth/authorize", headers:headers, body: bodyStr}, (err, res, body) =>
+      if err
+        fn err, body
+      else
+        result = JSON.parse body
+        @acccess_token = result.acccess_token
+        fn null, result
+
+  #
+  # Public: Get person reading list with params
+  #
+  #
+  get: (opts={}, fn=->) ->
+    at = opts.access_token
+    par = @_joinParams consumer_key: @consumer_key, access_token: at
+    console.log "calling " + "https://getpocket.com/v3/get?#{par}"
+    request "https://getpocket.com/v3/get?#{par}", (err, res, body) => @_getBody err, res, body, fn
+
+
+exports.Pocket = Pocket2
+
+exports.version = "0.9.1"
