@@ -45,7 +45,10 @@ class Pocket
   #
   # Public: Get request token
   #
-  # url - url to redirect after approve
+  # opts - options
+  #   :url - url to redirect after approve
+  #   :redirect - "http" (default) or "ios"
+  # 
   # fn(err, rd) - callback function
   # 
   getRequestToken: (opts={}, fn=->) ->
@@ -57,9 +60,13 @@ class Pocket
         fn err, body
       else
         b = JSON.parse body
+        if opts.redirect is "ios"
+          redir = "pocket-oauth-v1:///authorize?request_token=#{b.code}&redirect_uri=#{uri}"
+        else
+          redir = "https://getpocket.com/auth/authorize?request_token=#{b.code}&redirect_uri=#{uri}"
         fn null,
           code        : b.code
-          redirectUrl : "https://getpocket.com/auth/authorize?request_token=#{b.code}&redirect_uri=#{uri}"
+          redirectUrl : redir
 
 
   #
