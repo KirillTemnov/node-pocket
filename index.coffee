@@ -9,7 +9,7 @@ _        = require "underscore"
 #    2) resulting object in json/javascript format.
 #
 class Pocket
-  @version = "0.9.3"
+  @version = "0.9.4"
 
 
   #
